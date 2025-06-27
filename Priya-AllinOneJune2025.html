@@ -1,0 +1,2884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Priya's Medical Report - Comprehensive Lab Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .report-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .confidential-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .patient-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-low { background-color: #e74c3c; }
+        .status-normal { background-color: #27ae60; }
+        .status-high { background-color: #f39c12; }
+
+        .recommendations {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .recommendation-item {
+            background: rgba(255, 255, 255, 0.9);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 20px;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 1s ease-in-out;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            background: rgba(255, 255, 255, 0.9);
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            border-radius: 50%;
+        }
+
+        .alert-box {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 300;
+        }
+
+        .close {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+            line-height: 1.6;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .detail-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .value-display {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .value-normal { color: #27ae60; }
+        .value-low { color: #e74c3c; }
+        .value-high { color: #f39c12; }
+
+        .interpretation {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .causes-effects {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .causes, .effects {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clickable:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .metric-card.clickable:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .section.clickable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                max-height: 85vh;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .causes-effects {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="report-header">
+            <div class="confidential-badge">
+                <i class="fas fa-lock"></i> CONFIDENTIAL
+            </div>
+            <h1><i class="fas fa-heartbeat"></i> Comprehensive Laboratory Report</h1>
+            <div class="patient-info">
+                <div class="info-card">
+                    <strong>Patient:</strong> Priya
+                </div>
+                <div class="info-card">
+                    <strong>Test:</strong> Aarogyam XL (Thyrocare)
+                </div>
+                <div class="info-card">
+                    <strong>Collection:</strong> 25 Jun 2025
+                </div>
+                <div class="info-card">
+                    <strong>Report Date:</strong> 27 Jun 2025
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive Synopsis -->
+        <div class="section">
+            <h2><i class="fas fa-clipboard-list"></i> Executive Synopsis</h2>
+            <div class="alert-box">
+                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                <div>
+                    <strong>Key Findings:</strong> Moderate iron-deficiency anemia, borderline hypocalcemia, marginal protein status, and early micro-renal changes detected. All conditions are potentially reversible within 8-12 weeks with targeted intervention.
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics Dashboard -->
+        <div class="section">
+            <h2><i class="fas fa-chart-bar"></i> Key Health Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card clickable" onclick="openModal('hemoglobinModal')">
+                    <div class="metric-value">10.8</div>
+                    <div class="metric-label">Hemoglobin (g/dL)</div>
+                    <div style="margin-top: 10px;">
+                        <span class="status-indicator status-low"></span>Below Normal
+                    </div>
+                </div>
+                <div class="metric-card clickable" onclick="openModal('ferritinModal')">
+                    <div class="metric-value">6.7</div>
+                    <div class="metric-label">Ferritin (ng/mL)</div>
+                    <div style="margin-top: 10px;">
+                        <span class="status-indicator status-low"></span>Critically Low
+                    </div>
+                </div>
+                <div class="metric-card clickable" onclick="openModal('calciumModal')">
+                    <div class="metric-value">8.48</div>
+                    <div class="metric-label">Calcium (mg/dL)</div>
+                    <div style="margin-top: 10px;">
+                        <span class="status-indicator status-low"></span>Borderline Low
+                    </div>
+                </div>
+                <div class="metric-card clickable" onclick="openModal('transferrinModal')">
+                    <div class="metric-value">9.1</div>
+                    <div class="metric-label">Transferrin Saturation (%)</div>
+                    <div style="margin-top: 10px;">
+                        <span class="status-indicator status-low"></span>Deficient
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blood Count Analysis -->
+        <div class="section clickable" onclick="openModal('cbcModal')">
+            <h2><i class="fas fa-tint"></i> Complete Blood Count Analysis</h2>
+            <div class="chart-container">
+                <canvas id="cbcChart"></canvas>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <h3>Key Findings:</h3>
+                <div class="recommendation-item">
+                    <strong>Hemoglobin:</strong> 10.8 g/dL (↓ 10-15% below normal) - Reduced oxygen-carrying capacity
+                </div>
+                <div class="recommendation-item">
+                    <strong>Hematocrit:</strong> 34.3% (↓ 5-10% below normal) - Reduced red-cell mass
+                </div>
+                <div class="recommendation-item">
+                    <strong>RDW-CV:</strong> 17% (↑ 13% above normal) - Indicates erratic iron absorption
+                </div>
+            </div>
+        </div>
+
+        <!-- Iron Metabolism -->
+        <div class="section clickable" onclick="openModal('ironModal')">
+            <h2><i class="fas fa-atom"></i> Iron Metabolism Panel</h2>
+            <div class="chart-container">
+                <canvas id="ironChart"></canvas>
+            </div>
+            
+            <div class="alert-box">
+                <i class="fas fa-info-circle fa-2x"></i>
+                <div>
+                    <strong>Critical Iron Deficiency Detected:</strong> Ferritin at 6.7 ng/mL indicates severely depleted iron stores. Transferrin saturation at 9.1% shows functional iron deficiency affecting bone marrow.
+                </div>
+            </div>
+        </div>
+
+        <!-- Treatment Progress Tracker -->
+        <div class="section clickable" onclick="openModal('progressModal')">
+            <h2><i class="fas fa-chart-line"></i> Treatment Progress Tracker</h2>
+            <div class="chart-container">
+                <canvas id="progressChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Vitamin Status -->
+        <div class="section clickable" onclick="openModal('vitaminModal')">
+            <h2><i class="fas fa-pills"></i> Vitamin & Mineral Status</h2>
+            <div class="chart-container">
+                <canvas id="vitaminChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Treatment Protocol -->
+        <div class="section">
+            <h2><i class="fas fa-prescription-bottle-alt"></i> 12-Week Restorative Care Protocol</h2>
+            <div class="timeline">
+                <div class="timeline-item clickable" onclick="openModal('ironRepletionModal')">
+                    <h4><i class="fas fa-capsules"></i> Iron Repletion</h4>
+                    <p><strong>Ferrous bisglycinate:</strong> 65 mg elemental Fe + 250 mg Vitamin C</p>
+                    <p><strong>Timing:</strong> 6 AM empty stomach</p>
+                    <p><strong>Target:</strong> Hb ≥ 12, Ferritin > 50 by week 12</p>
+                    <div style="margin-top: 10px; color: #3498db; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for detailed protocol
+                    </div>
+                </div>
+                
+                <div class="timeline-item clickable" onclick="openModal('calciumSupportModal')">
+                    <h4><i class="fas fa-bone"></i> Calcium & Bone Support</h4>
+                    <p><strong>Calcium carbonate:</strong> 500 mg + Vit D3 400 IU BID</p>
+                    <p><strong>Target:</strong> Serum Ca 9-9.5 mg/dL</p>
+                    <div style="margin-top: 10px; color: #3498db; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for detailed protocol
+                    </div>
+                </div>
+                
+                <div class="timeline-item clickable" onclick="openModal('proteinEnhancementModal')">
+                    <h4><i class="fas fa-dumbbell"></i> Protein Enhancement</h4>
+                    <p><strong>Target:</strong> ≥ 60 g/day vegetarian protein</p>
+                    <p><strong>Goal:</strong> Raise BUN to 10-15 mg/dL</p>
+                    <div style="margin-top: 10px; color: #3498db; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for detailed protocol
+                    </div>
+                </div>
+                
+                <div class="timeline-item clickable" onclick="openModal('functionalMovementModal')">
+                    <h4><i class="fas fa-running"></i> Functional Movement</h4>
+                    <p><strong>Exercise:</strong> 30 min brisk walk + 20 min gentle yoga daily</p>
+                    <p><strong>Benefit:</strong> Boost erythropoiesis & bone density</p>
+                    <div style="margin-top: 10px; color: #3498db; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for detailed protocol
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Monitoring -->
+        <div class="section">
+            <h2><i class="fas fa-shield-alt"></i> Risk Flags & Monitoring</h2>
+            <div class="recommendations">
+                <h3><i class="fas fa-warning"></i> Immediate Action Required If:</h3>
+                <div class="recommendation-item clickable" onclick="openModal('hbDropModal')">
+                    <strong>Hb drops > 0.5 g/dL after 4 weeks:</strong> GI occult-bleed work-up needed
+                    <div style="margin-top: 8px; color: #3498db; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for detailed protocol
+                    </div>
+                </div>
+                <div class="recommendation-item clickable" onclick="openModal('persistentUrineModal')">
+                    <strong>Persistent blood/protein in urine:</strong> Nephrology referral at week 6
+                    <div style="margin-top: 8px; color: #3498db; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for detailed protocol
+                    </div>
+                </div>
+                <div class="recommendation-item clickable" onclick="openModal('lowCalciumModal')">
+                    <strong>Serum Ca < 8.0 mg/dL:</strong> Emergency IV calcium treatment
+                    <div style="margin-top: 8px; color: #3498db; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for detailed protocol
+                    </div>
+                </div>
+                <div class="recommendation-item clickable" onclick="openModal('neurologicSymptomsModal')">
+                    <strong>Neurologic symptoms persist:</strong> Neurology consultation required
+                    <div style="margin-top: 8px; color: #3498db; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for detailed protocol
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recovery Timeline -->
+        <div class="section">
+            <h2><i class="fas fa-calendar-check"></i> Expected Recovery Timeline</h2>
+            <div class="chart-container">
+                <canvas id="recoveryChart"></canvas>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                <h3><i class="fas fa-trophy"></i> Prognosis</h3>
+                <p>With strict adherence to the treatment protocol, <strong>full hematologic recovery is anticipated by mid-September 2025</strong>. Restoration of calcium and protein status should eliminate neuromuscular symptoms and stabilize mood/energy levels.</p>
+            </div>
+        </div>
+
+        <!-- 360-Degree Revitalization Blueprint -->
+        <div class="section">
+            <h2><i class="fas fa-seedling"></i> 🌱 Priya's 360-Degree Revitalisation Blueprint</h2>
+            <div style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); padding: 20px; border-radius: 15px; margin-bottom: 25px;">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;"><i class="fas fa-infinity"></i> 7-Day Cycle Framework</h3>
+                <p style="color: #2c3e50; font-size: 1.1rem; margin: 0;">Rinse and repeat for 12 weeks — tweak servings to appetite and season. <strong>Mantra:</strong> "Nourish the vessel, illuminate the spirit."</p>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card clickable" onclick="openModal('dailyFlowModal')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="metric-value"><i class="fas fa-clock"></i></div>
+                    <div class="metric-label">Daily Flow Schedule</div>
+                    <div style="margin-top: 10px; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for detailed timeline
+                    </div>
+                </div>
+                <div class="metric-card clickable" onclick="openModal('menuMatrixModal')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="metric-value"><i class="fas fa-utensils"></i></div>
+                    <div class="metric-label">7-Day Menu Matrix</div>
+                    <div style="margin-top: 10px; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for meal plans
+                    </div>
+                </div>
+                <div class="metric-card clickable" onclick="openModal('yogaCatalogueModal')" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="metric-value"><i class="fas fa-om"></i></div>
+                    <div class="metric-label">Therapeutic Yoga</div>
+                    <div style="margin-top: 10px; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for sequences
+                    </div>
+                </div>
+                <div class="metric-card clickable" onclick="openModal('ayurvedicModal')" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="metric-value"><i class="fas fa-leaf"></i></div>
+                    <div class="metric-label">Ayurvedic Support</div>
+                    <div style="margin-top: 10px; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Click for formulations
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(46, 204, 113, 0.1); padding: 20px; border-radius: 15px; margin-top: 25px; border-left: 4px solid #27ae60;">
+                <h3><i class="fas fa-chart-line"></i> Expected Milestones</h3>
+                <div class="detail-grid" style="margin-top: 15px;">
+                    <div class="detail-card">
+                        <h4>Week 4</h4>
+                        <p><strong>Biochemical:</strong> Hb +0.7 g/dL; Ca > 9.0</p>
+                        <p><strong>Feeling:</strong> Less afternoon crash, reduced calf cramps</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Week 8</h4>
+                        <p><strong>Biochemical:</strong> Ferritin > 35 ng/mL; ACR ↓ > 20%</p>
+                        <p><strong>Feeling:</strong> Stamina back, clearer focus in sādhanā</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Week 12</h4>
+                        <p><strong>Biochemical:</strong> Hb ≥ 12; Ca steady; UA clear</p>
+                        <p><strong>Feeling:</strong> Stable mood, vivid meditation, normal cycle flow</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Compiled by:</strong> Integrated Medicine Review Team</p>
+            <p>Dr A. Kumar MD (Internal Med), Dr S. Menon BAMS (Ayurveda), Ms R. Thomas RD (Clinical Nutrition)</p>
+            <p><strong>Document ID:</strong> IMRT-P20250627-PRI-L2 | <strong>Issued:</strong> 27 Jun 2025</p>
+            <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
+                <i class="fas fa-lock"></i> This report is for professional use; share only with authorized healthcare providers.
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal Structures -->
+
+    <!-- Hemoglobin Modal -->
+    <div id="hemoglobinModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-tint"></i> Hemoglobin Analysis</h2>
+                <span class="close" onclick="closeModal('hemoglobinModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Current Value</h4>
+                        <div class="value-display value-low">10.8 g/dL</div>
+                        <p><strong>Status:</strong> Below Normal (12.0-15.0 g/dL)</p>
+                        <p><strong>Deviation:</strong> -10 to -15% from normal range</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Clinical Significance</h4>
+                        <p>Hemoglobin is the iron-rich protein in red blood cells that carries oxygen from lungs to tissues.</p>
+                        <p><strong>Your Level:</strong> Indicates moderate anemia affecting oxygen delivery.</p>
+                    </div>
+                </div>
+                
+                <div class="interpretation">
+                    <h4><i class="fas fa-stethoscope"></i> Clinical Interpretation</h4>
+                    <p><strong>Oxygen-carrying capacity is reduced.</strong> Chronic Hb < 11 g/dL correlates with impaired attention, shortness of breath on exertion, pallor, hair loss, and brittle nails.</p>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-search"></i> Possible Causes</h4>
+                        <ul>
+                            <li>Iron deficiency (most likely)</li>
+                            <li>Heavy menstrual periods</li>
+                            <li>Occult gastrointestinal bleeding</li>
+                            <li>Poor dietary iron intake</li>
+                            <li>Malabsorption issues</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Symptoms & Effects</h4>
+                        <ul>
+                            <li>Fatigue and weakness</li>
+                            <li>Shortness of breath</li>
+                            <li>Cold hands and feet</li>
+                            <li>Brittle or spoon-shaped nails</li>
+                            <li>Restless leg syndrome</li>
+                            <li>Brain fog and poor concentration</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-target"></i> Treatment Goal</h4>
+                    <p><strong>Target:</strong> Achieve Hb ≥ 12 g/dL within 8-12 weeks through iron supplementation and dietary changes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ferritin Modal -->
+    <div id="ferritinModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-atom"></i> Ferritin Analysis</h2>
+                <span class="close" onclick="closeModal('ferritinModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Current Value</h4>
+                        <div class="value-display value-low">6.7 ng/mL</div>
+                        <p><strong>Status:</strong> Critically Low (Normal: 15-150 ng/mL)</p>
+                        <p><strong>Severity:</strong> Severe iron store depletion</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>What is Ferritin?</h4>
+                        <p>Ferritin is a protein that stores iron in your body. It's the best indicator of your body's iron reserves.</p>
+                        <p><strong>Your Level:</strong> Indicates your iron "tank" is almost empty.</p>
+                    </div>
+                </div>
+                
+                <div class="interpretation">
+                    <h4><i class="fas fa-stethoscope"></i> Critical Finding</h4>
+                    <p><strong>Ferritin < 12 unequivocally indicates depleted iron stores.</strong> At 6.7 ng/mL, your iron reserves are severely depleted, explaining the anemia and associated symptoms.</p>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-search"></i> Why So Low?</h4>
+                        <ul>
+                            <li>Prolonged inadequate iron intake</li>
+                            <li>Heavy menstrual bleeding</li>
+                            <li>Occult blood loss (GI tract)</li>
+                            <li>Pregnancy/breastfeeding history</li>
+                            <li>Vegetarian diet without supplementation</li>
+                            <li>PPI medication use (reduces absorption)</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-bolt"></i> Impact on Body</h4>
+                        <ul>
+                            <li>Reduced ATP synthesis (energy)</li>
+                            <li>Impaired dopamine/serotonin metabolism</li>
+                            <li>Mood swings and irritability</li>
+                            <li>Cold intolerance</li>
+                            <li>Impaired immune function</li>
+                            <li>Restless legs syndrome</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Urgent Action Required</h4>
+                    <p><strong>Priority Treatment:</strong> Immediate iron supplementation needed. Target: Ferritin > 50 ng/mL within 12 weeks. Consider IV iron if oral supplements cause GI issues.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calcium Modal -->
+    <div id="calciumModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-bone"></i> Calcium Analysis</h2>
+                <span class="close" onclick="closeModal('calciumModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Current Value</h4>
+                        <div class="value-display value-low">8.48 mg/dL</div>
+                        <p><strong>Status:</strong> Borderline Low (Normal: 8.8-10.6 mg/dL)</p>
+                        <p><strong>Concern Level:</strong> Mild hypocalcemia</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Role of Calcium</h4>
+                        <p>Calcium is essential for bone health, muscle function, nerve transmission, and blood clotting.</p>
+                        <p><strong>Your Level:</strong> May cause neuromuscular symptoms.</p>
+                    </div>
+                </div>
+                
+                <div class="interpretation">
+                    <h4><i class="fas fa-stethoscope"></i> Clinical Significance</h4>
+                    <p><strong>Borderline hypocalcemia leads to neuronal membrane instability.</strong> This can manifest as tingling in extremities, muscle cramps, and visual disturbances (photopsias).</p>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-search"></i> Possible Causes</h4>
+                        <ul>
+                            <li>Vitamin D deficiency (most common)</li>
+                            <li>Inadequate dietary calcium</li>
+                            <li>Magnesium deficiency</li>
+                            <li>Parathyroid disorders</li>
+                            <li>Malabsorption syndromes</li>
+                            <li>Certain medications</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Symptoms</h4>
+                        <ul>
+                            <li>Muscle cramps and spasms</li>
+                            <li>Tingling in fingers/toes</li>
+                            <li>Numbness around mouth</li>
+                            <li>Visual disturbances</li>
+                            <li>Anxiety and irritability</li>
+                            <li>Irregular heartbeat (severe cases)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-pills"></i> Treatment Plan</h4>
+                    <p><strong>Correction Strategy:</strong> Calcium carbonate 500mg + Vitamin D3 400 IU twice daily. Target: Serum Ca 9.0-9.5 mg/dL. Also check Vitamin D and Magnesium levels.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transferrin Saturation Modal -->
+    <div id="transferrinModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exchange-alt"></i> Transferrin Saturation Analysis</h2>
+                <span class="close" onclick="closeModal('transferrinModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Current Value</h4>
+                        <div class="value-display value-low">9.1%</div>
+                        <p><strong>Status:</strong> Severely Low (Normal: 13-45%)</p>
+                        <p><strong>Diagnosis:</strong> Functional iron deficiency</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>What is Transferrin Saturation?</h4>
+                        <p>Shows how much iron is actually being transported to tissues. It's the percentage of transferrin (iron transport protein) that carries iron.</p>
+                        <p><strong>Your Level:</strong> Bone marrow is starved of iron.</p>
+                    </div>
+                </div>
+                
+                <div class="interpretation">
+                    <h4><i class="fas fa-stethoscope"></i> Critical Interpretation</h4>
+                    <p><strong>Saturation < 15% indicates functional iron deficiency.</strong> At 9.1%, your bone marrow cannot get enough iron to produce healthy red blood cells, even if some iron is circulating.</p>
+                </div>
+
+                <div class="detail-grid" style="margin-top: 20px;">
+                    <div class="detail-card">
+                        <h4><i class="fas fa-flask"></i> Related Values</h4>
+                        <ul>
+                            <li><strong>Serum Iron:</strong> 34.4 µg/dL (Low)</li>
+                            <li><strong>TIBC:</strong> 378 µg/dL (High)</li>
+                            <li><strong>Calculation:</strong> 34.4/378 × 100 = 9.1%</li>
+                        </ul>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-cogs"></i> What This Means</h4>
+                        <ul>
+                            <li>Low iron in blood</li>
+                            <li>High binding capacity (body trying to catch more iron)</li>
+                            <li>Very low saturation = iron starvation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-search"></i> Why So Low?</h4>
+                        <ul>
+                            <li>Depleted iron stores (ferritin 6.7)</li>
+                            <li>Inadequate iron absorption</li>
+                            <li>Ongoing iron loss</li>
+                            <li>Poor dietary iron sources</li>
+                            <li>Iron absorption inhibitors (tea, coffee)</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-dna"></i> Impact on Blood Production</h4>
+                        <ul>
+                            <li>Reduced hemoglobin synthesis</li>
+                            <li>Smaller, paler red blood cells</li>
+                            <li>Decreased oxygen transport</li>
+                            <li>Impaired cellular energy production</li>
+                            <li>Compensatory increase in heart rate</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-target"></i> Recovery Target</h4>
+                    <p><strong>Goal:</strong> Achieve transferrin saturation > 20% within 8-12 weeks. This indicates adequate iron availability for red blood cell production.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CBC Modal -->
+    <div id="cbcModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-tint"></i> Complete Blood Count Detailed Analysis</h2>
+                <span class="close" onclick="closeModal('cbcModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-microscope"></i> Overall Assessment</h4>
+                    <p><strong>Pattern:</strong> Microcytic, hypochromic anemia consistent with iron deficiency. Red blood cell parameters show classic signs of iron-deficient erythropoiesis.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Hemoglobin (Hb)</h4>
+                        <div class="value-display value-low">10.8 g/dL</div>
+                        <p><strong>Normal:</strong> 12.0-15.0 g/dL</p>
+                        <p><strong>Deviation:</strong> -10 to -15%</p>
+                        <p>Reduced oxygen-carrying capacity causing fatigue and breathlessness.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Hematocrit (Hct)</h4>
+                        <div class="value-display value-low">34.3%</div>
+                        <p><strong>Normal:</strong> 36-46%</p>
+                        <p><strong>Deviation:</strong> -5 to -10%</p>
+                        <p>Mirrors Hb deficit; indicates reduced red-cell mass in blood.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Mean Cell Volume (MCV)</h4>
+                        <div class="value-display value-low">78 fL</div>
+                        <p><strong>Normal:</strong> 80-100 fL</p>
+                        <p><strong>Status:</strong> Low-normal (microcytic trend)</p>
+                        <p>Red cells are smaller than normal, typical of iron deficiency.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Mean Cell Hemoglobin (MCH)</h4>
+                        <div class="value-display value-low">24 pg</div>
+                        <p><strong>Normal:</strong> 27-32 pg</p>
+                        <p><strong>Status:</strong> Low (hypochromic)</p>
+                        <p>Each red cell contains less hemoglobin, appearing paler.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>RDW-CV</h4>
+                        <div class="value-display value-high">17%</div>
+                        <p><strong>Normal:</strong> 11-15%</p>
+                        <p><strong>Deviation:</strong> +13%</p>
+                        <p>High variability in red cell size indicates erratic iron absorption.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Platelets</h4>
+                        <div class="value-display value-normal">420 × 10³/µL</div>
+                        <p><strong>Normal:</strong> 150-400 × 10³/µL</p>
+                        <p><strong>Status:</strong> Upper-normal (+5%)</p>
+                        <p>Mild reactive thrombocytosis often accompanies iron deficiency.</p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #27ae60;">
+                    <h4><i class="fas fa-shield-alt"></i> Good News</h4>
+                    <p><strong>White Blood Cell Count & Differential:</strong> Within normal limits, indicating intact immune system function.</p>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-chart-line"></i> Monitoring Protocol</h4>
+                    <p><strong>Response Indicator:</strong> Hb rise ≥ 1 g/dL in 4 weeks signals effective therapy. Lack of response warrants investigation for occult bleeding.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Iron Metabolism Modal -->
+    <div id="ironModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-atom"></i> Iron Metabolism Panel Deep Dive</h2>
+                <span class="close" onclick="closeModal('ironModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Critical Iron Deficiency Profile</h4>
+                    <p><strong>Pattern:</strong> Classic iron deficiency anemia with depleted stores and functional deficiency. All parameters point to severe iron starvation at the cellular level.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Serum Iron</h4>
+                        <div class="value-display value-low">34.4 µg/dL</div>
+                        <p><strong>Normal:</strong> 50-170 µg/dL</p>
+                        <p><strong>Status:</strong> Low circulating iron pool</p>
+                        <p>Not enough iron available in bloodstream for immediate use.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Total Iron Binding Capacity (TIBC)</h4>
+                        <div class="value-display value-high">378 µg/dL</div>
+                        <p><strong>Normal:</strong> 240-450 µg/dL</p>
+                        <p><strong>Status:</strong> Elevated</p>
+                        <p>Liver produces more transferrin to "catch" scarce iron molecules.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Transferrin Saturation</h4>
+                        <div class="value-display value-low">9.1%</div>
+                        <p><strong>Normal:</strong> 13-45%</p>
+                        <p><strong>Critical Level:</strong> < 15% = functional deficiency</p>
+                        <p>Bone marrow is starved of iron for hemoglobin production.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Ferritin</h4>
+                        <div class="value-display value-low">6.7 ng/mL</div>
+                        <p><strong>Normal:</strong> 15-150 ng/mL (♀)</p>
+                        <p><strong>Critical:</strong> < 12 = depleted stores</p>
+                        <p>Iron storage "tank" is essentially empty.</p>
+                    </div>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-search"></i> Typical Root Causes</h4>
+                        <ul>
+                            <li><strong>Dietary:</strong> Low iron intake (vegetarian diet)</li>
+                            <li><strong>Gynecologic:</strong> Heavy menstrual periods</li>
+                            <li><strong>Gastrointestinal:</strong> Occult blood loss</li>
+                            <li><strong>Medication:</strong> Prolonged PPI use</li>
+                            <li><strong>Absorption:</strong> Celiac disease, gastritis</li>
+                            <li><strong>Lifestyle:</strong> Frequent tea/coffee with meals</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-bolt"></i> Downstream Effects</h4>
+                        <ul>
+                            <li><strong>Cellular:</strong> Reduced ATP synthesis</li>
+                            <li><strong>Neurologic:</strong> Impaired neurotransmitter metabolism</li>
+                            <li><strong>Mood:</strong> Depression, anxiety, irritability</li>
+                            <li><strong>Thermoregulation:</strong> Cold intolerance</li>
+                            <li><strong>Cognitive:</strong> Brain fog, poor concentration</li>
+                            <li><strong>Physical:</strong> Restless legs, hair loss</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-ambulance"></i> Urgent Intervention Needed</h4>
+                    <p><strong>Treatment Priority:</strong> Immediate iron repletion with ferrous bisglycinate 65mg + Vitamin C 250mg daily. Consider IV iron if oral supplements cause GI distress. Monitor response every 2-4 weeks.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Modal -->
+    <div id="progressModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-chart-line"></i> Treatment Progress Tracker</h2>
+                <span class="close" onclick="closeModal('progressModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-calendar-alt"></i> 12-Week Recovery Timeline</h4>
+                    <p><strong>Projected Path:</strong> With consistent treatment adherence, expect steady improvement in all parameters. Iron stores will recover first, followed by hemoglobin normalization.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Week 0-2: Early Response</h4>
+                        <ul>
+                            <li>Reticulocyte count increases</li>
+                            <li>Energy levels start improving</li>
+                            <li>Ferritin begins rising (>15 ng/mL)</li>
+                        </ul>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Week 4-6: Visible Progress</h4>
+                        <ul>
+                            <li>Hemoglobin rises 1-2 g/dL</li>
+                            <li>Transferrin saturation >15%</li>
+                            <li>Symptoms notably improve</li>
+                        </ul>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Week 8-10: Major Improvement</h4>
+                        <ul>
+                            <li>Hemoglobin approaches 12 g/dL</li>
+                            <li>Ferritin >40 ng/mL</li>
+                            <li>Energy and mood stabilize</li>
+                        </ul>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Week 12: Target Achievement</h4>
+                        <ul>
+                            <li>Hemoglobin >12 g/dL</li>
+                            <li>Ferritin >50 ng/mL</li>
+                            <li>Full symptom resolution</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #3498db;">
+                    <h4><i class="fas fa-stethoscope"></i> Monitoring Schedule</h4>
+                    <ul>
+                        <li><strong>Week 2:</strong> Check for GI tolerance of iron supplements</li>
+                        <li><strong>Week 4:</strong> CBC, reticulocyte count (expect Hb rise ≥1 g/dL)</li>
+                        <li><strong>Week 6:</strong> Full iron panel, urinalysis</li>
+                        <li><strong>Week 8:</strong> CBC, symptoms assessment</li>
+                        <li><strong>Week 12:</strong> Complete panel + Vitamin D, MMA</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #27ae60, #229954); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-trophy"></i> Success Indicators</h4>
+                    <p><strong>Treatment Working If:</strong> Hb rises ≥1 g/dL by week 4, ferritin doubles by week 6, and symptoms improve progressively. Lack of response warrants investigation for occult bleeding.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vitamin Modal -->
+    <div id="vitaminModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-pills"></i> Vitamin & Mineral Status</h2>
+                <span class="close" onclick="closeModal('vitaminModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-flask"></i> Nutritional Assessment</h4>
+                    <p><strong>Overall Pattern:</strong> Mixed vitamin status with B12 elevation (likely supplemental), marginal B1 stores, and critical mineral deficiencies requiring targeted intervention.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Vitamin B-12</h4>
+                        <div class="value-display value-high">852 pg/mL</div>
+                        <p><strong>Normal:</strong> 197-771 pg/mL</p>
+                        <p><strong>Status:</strong> Elevated (likely from supplements)</p>
+                        <p>Usually benign but warrants monitoring. Stop B12 supplements temporarily.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Vitamin B-1 (Thiamine)</h4>
+                        <div class="value-display value-low">0.44 ng/mL</div>
+                        <p><strong>Normal:</strong> 0.5-4.0 ng/mL</p>
+                        <p><strong>Status:</strong> Border-low</p>
+                        <p>Marginal stores may cause irritability and memory issues.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Vitamin D (25-OH)</h4>
+                        <div class="value-display" style="color: #95a5a6;">Pending</div>
+                        <p><strong>Target:</strong> 30-100 ng/mL</p>
+                        <p><strong>Status:</strong> To be ordered</p>
+                        <p>Critical for calcium absorption - needs testing.</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Iron Status</h4>
+                        <div class="value-display value-low">Critically Low</div>
+                        <p>Serum Iron: 34.4 µg/dL (Low)</p>
+                        <p>Ferritin: 6.7 ng/mL (Critical)</p>
+                        <p>Primary concern requiring immediate attention.</p>
+                    </div>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-utensils"></i> Nutritional Factors</h4>
+                        <ul>
+                            <li><strong>B12 High:</strong> Recent supplementation</li>
+                            <li><strong>B1 Low:</strong> Limited whole grains, refined carbs</li>
+                            <li><strong>Iron Low:</strong> Vegetarian diet, poor absorption</li>
+                            <li><strong>Calcium Low:</strong> Inadequate dairy/alternatives</li>
+                            <li><strong>Protein Low:</strong> One meal per day pattern</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-brain"></i> Functional Impact</h4>
+                        <ul>
+                            <li><strong>B1 Deficiency:</strong> Fatigue, irritability, poor memory</li>
+                            <li><strong>Iron Deficiency:</strong> Anemia, cognitive impairment</li>
+                            <li><strong>Calcium Low:</strong> Muscle cramps, paresthesias</li>
+                            <li><strong>Combined Effect:</strong> Mood instability, brain fog</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #9b59b6;">
+                    <h4><i class="fas fa-prescription"></i> Supplement Strategy</h4>
+                    <ul>
+                        <li><strong>Stop:</strong> B12 supplements (allow normalization)</li>
+                        <li><strong>Start:</strong> Thiamine 50mg daily × 8 weeks</li>
+                        <li><strong>Priority:</strong> Iron + Vitamin C supplementation</li>
+                        <li><strong>Test:</strong> Vitamin D levels immediately</li>
+                        <li><strong>Support:</strong> Calcium + D3 combination</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-utensils"></i> Dietary Optimization</h4>
+                    <p><strong>Focus Areas:</strong> Increase meal frequency to 3 times daily, combine iron-rich foods with Vitamin C, separate calcium and iron intake by 2 hours, add fortified foods and consider targeted supplementation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Iron Repletion Modal -->
+    <div id="ironRepletionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-capsules"></i> Iron Repletion Protocol</h2>
+                <span class="close" onclick="closeModal('ironRepletionModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Critical Priority Treatment</h4>
+                    <p><strong>Primary Goal:</strong> Rapidly restore depleted iron stores and normalize hemoglobin levels. With ferritin at 6.7 ng/mL, immediate and aggressive iron repletion is essential.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Primary Supplement</h4>
+                        <div class="value-display" style="color: #e74c3c; font-size: 1.5rem;">Ferrous Bisglycinate</div>
+                        <p><strong>Dosage:</strong> 65 mg elemental iron daily</p>
+                        <p><strong>Form:</strong> Chelated iron (gentler on stomach)</p>
+                        <p><strong>Bioavailability:</strong> Superior absorption vs sulfate forms</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Absorption Enhancer</h4>
+                        <div class="value-display" style="color: #f39c12; font-size: 1.5rem;">Vitamin C</div>
+                        <p><strong>Dosage:</strong> 250 mg with iron</p>
+                        <p><strong>Purpose:</strong> Converts Fe³⁺ to Fe²⁺ (absorbable form)</p>
+                        <p><strong>Benefit:</strong> Increases iron absorption by 3-4x</p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-clock"></i> Optimal Timing Protocol</h4>
+                    <ul>
+                        <li><strong>6:00 AM:</strong> Take on completely empty stomach</li>
+                        <li><strong>Wait 1 hour:</strong> Before eating breakfast</li>
+                        <li><strong>Avoid for 2 hours:</strong> Coffee, tea, dairy products</li>
+                        <li><strong>Take with:</strong> Orange juice or vitamin C tablet</li>
+                    </ul>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-flask"></i> Alternative Options</h4>
+                        <ul>
+                            <li><strong>If GI intolerance:</strong> Ferrous fumarate 65mg</li>
+                            <li><strong>If severe nausea:</strong> Every other day dosing</li>
+                            <li><strong>If malabsorption:</strong> IV iron infusion (750mg)</li>
+                            <li><strong>Ayurvedic support:</strong> Punarnava Mandur 500mg TID</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-chart-line"></i> Expected Response</h4>
+                        <ul>
+                            <li><strong>Week 1-2:</strong> Increased energy, less fatigue</li>
+                            <li><strong>Week 4:</strong> Hb rise ≥1 g/dL, reticulocyte ↑</li>
+                            <li><strong>Week 8:</strong> Hb >11.5 g/dL, ferritin >30</li>
+                            <li><strong>Week 12:</strong> Hb >12 g/dL, ferritin >50</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #3498db;">
+                    <h4><i class="fas fa-utensils"></i> Dietary Iron Optimization</h4>
+                    <ul>
+                        <li><strong>Combine foods:</strong> Lentils + lemon, spinach + tomato</li>
+                        <li><strong>Iron-rich sources:</strong> Dark leafy greens, sesame seeds, jaggery</li>
+                        <li><strong>Avoid inhibitors:</strong> Tea/coffee within 2 hours of meals</li>
+                        <li><strong>Cook in iron:</strong> Use cast iron cookware when possible</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #27ae60, #229954); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-target"></i> Success Metrics</h4>
+                    <p><strong>Continue iron therapy until:</strong> Ferritin >50 ng/mL AND Hb >12 g/dL for 2 consecutive months. Then reduce to maintenance dose of 18mg daily for 6 more months to fully replenish stores.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calcium Support Modal -->
+    <div id="calciumSupportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-bone"></i> Calcium & Bone Support Protocol</h2>
+                <span class="close" onclick="closeModal('calciumSupportModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-stethoscope"></i> Borderline Hypocalcemia Correction</h4>
+                    <p><strong>Current Issue:</strong> Serum calcium at 8.48 mg/dL (normal: 8.8-10.6) requires immediate correction to prevent neuromuscular symptoms and optimize bone health.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Primary Supplement</h4>
+                        <div class="value-display" style="color: #3498db; font-size: 1.5rem;">Calcium Carbonate</div>
+                        <p><strong>Dosage:</strong> 500 mg twice daily</p>
+                        <p><strong>Elemental Ca:</strong> 200 mg per 500 mg tablet</p>
+                        <p><strong>Best absorbed:</strong> With meals (needs acid)</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Absorption Co-factor</h4>
+                        <div class="value-display" style="color: #f39c12; font-size: 1.5rem;">Vitamin D3</div>
+                        <p><strong>Dosage:</strong> 400 IU twice daily</p>
+                        <p><strong>Function:</strong> Enhances intestinal Ca absorption</p>
+                        <p><strong>Target:</strong> 25-OH Vitamin D >30 ng/mL</p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #3498db;">
+                    <h4><i class="fas fa-clock"></i> Dosing Schedule</h4>
+                    <ul>
+                        <li><strong>Morning (8 AM):</strong> 500mg Ca + 400 IU D3 with breakfast</li>
+                        <li><strong>Evening (6 PM):</strong> 500mg Ca + 400 IU D3 with dinner</li>
+                        <li><strong>Separate from iron:</strong> Take 2+ hours apart from iron supplements</li>
+                        <li><strong>Take with food:</strong> Improves absorption and reduces GI upset</li>
+                    </ul>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Ayurvedic Support</h4>
+                        <div class="value-display" style="color: #9b59b6; font-size: 1.2rem;">Praval Pishti</div>
+                        <p><strong>Dosage:</strong> 250 mg twice daily</p>
+                        <p><strong>With:</strong> Honey or warm milk</p>
+                        <p><strong>Benefit:</strong> Coral calcium - highly bioavailable</p>
+                        <p><strong>Additional:</strong> Cooling properties for Pitta balance</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Monitoring Required</h4>
+                        <ul>
+                            <li><strong>Week 2:</strong> Check for symptom improvement</li>
+                            <li><strong>Week 6:</strong> Serum calcium level</li>
+                            <li><strong>Week 12:</strong> Ca + 25-OH Vitamin D levels</li>
+                            <li><strong>Ongoing:</strong> Monitor for kidney stones</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-utensils"></i> Dietary Calcium Sources</h4>
+                        <ul>
+                            <li><strong>Sesame seeds:</strong> 1 tbsp = 88mg calcium</li>
+                            <li><strong>Ragi (finger millet):</strong> 1 cup = 350mg</li>
+                            <li><strong>Figs (dried):</strong> 5 pieces = 135mg</li>
+                            <li><strong>Almonds:</strong> 1 oz = 75mg</li>
+                            <li><strong>Tofu:</strong> 1/2 cup = 250mg</li>
+                            <li><strong>Green leafy vegetables:</strong> Variable 50-200mg</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-heartbeat"></i> Expected Benefits</h4>
+                        <ul>
+                            <li><strong>Week 1-2:</strong> Reduced muscle cramps</li>
+                            <li><strong>Week 3-4:</strong> Less tingling sensations</li>
+                            <li><strong>Week 6:</strong> Improved sleep quality</li>
+                            <li><strong>Week 8:</strong> Better stress tolerance</li>
+                            <li><strong>Week 12:</strong> Optimized bone metabolism</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Important Precautions</h4>
+                    <ul>
+                        <li><strong>Kidney function:</strong> Monitor creatinine (currently normal)</li>
+                        <li><strong>Drug interactions:</strong> Separate from iron, thyroid meds</li>
+                        <li><strong>Maximum absorption:</strong> Don't exceed 500mg per dose</li>
+                        <li><strong>Magnesium status:</strong> Check levels if Ca correction slow</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-target"></i> Target Achievement</h4>
+                    <p><strong>Goal:</strong> Serum calcium 9.0-9.5 mg/dL within 6-8 weeks. Continue supplementation for 6 months total, then reassess with bone density scan and vitamin D status.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Protein Enhancement Modal -->
+    <div id="proteinEnhancementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-dumbbell"></i> Protein Enhancement Protocol</h2>
+                <span class="close" onclick="closeModal('proteinEnhancementModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Protein Deficiency Correction</h4>
+                    <p><strong>Current Issue:</strong> BUN <5 mg/dL indicates inadequate protein intake, likely from one-meal-per-day pattern. This impairs albumin synthesis, transferrin production, and overall recovery.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Daily Protein Target</h4>
+                        <div class="value-display" style="color: #27ae60; font-size: 2rem;">60g+</div>
+                        <p><strong>Current estimate:</strong> ~25-30g/day</p>
+                        <p><strong>Body weight basis:</strong> 1.2-1.5g/kg ideal weight</p>
+                        <p><strong>Quality focus:</strong> Complete amino acid profiles</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Target BUN Level</h4>
+                        <div class="value-display" style="color: #3498db; font-size: 2rem;">10-15 mg/dL</div>
+                        <p><strong>Current:</strong> <5 mg/dL (critically low)</p>
+                        <p><strong>Indicates:</strong> Adequate protein metabolism</p>
+                        <p><strong>Monitor:</strong> Weekly for first month</p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #27ae60;">
+                    <h4><i class="fas fa-utensils"></i> Meal Structure Transformation</h4>
+                    <ul>
+                        <li><strong>From:</strong> 1 meal/day → <strong>To:</strong> 3 balanced meals + 1 snack</li>
+                        <li><strong>Breakfast:</strong> 15-20g protein (oats + nuts + milk)</li>
+                        <li><strong>Lunch:</strong> 20-25g protein (dal + quinoa + vegetables)</li>
+                        <li><strong>Dinner:</strong> 15-20g protein (tofu/paneer + vegetables)</li>
+                        <li><strong>Snack:</strong> 5-10g protein (yogurt + seeds)</li>
+                    </ul>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4><i class="fas fa-seedling"></i> High-Quality Vegetarian Proteins</h4>
+                        <ul>
+                            <li><strong>Quinoa:</strong> 8g per cup (complete protein)</li>
+                            <li><strong>Lentils/Dal:</strong> 18g per cup cooked</li>
+                            <li><strong>Chickpeas:</strong> 15g per cup cooked</li>
+                            <li><strong>Tofu:</strong> 20g per 1/2 cup</li>
+                            <li><strong>Greek yogurt:</strong> 20g per cup</li>
+                            <li><strong>Paneer:</strong> 25g per 100g</li>
+                        </ul>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-leaf"></i> Protein-Rich Combinations</h4>
+                        <ul>
+                            <li><strong>Rice + Dal:</strong> Complete amino profile</li>
+                            <li><strong>Roti + Chickpea curry:</strong> 25g total</li>
+                            <li><strong>Oats + Nuts + Milk:</strong> 20g breakfast</li>
+                            <li><strong>Quinoa + Black beans:</strong> 30g per serving</li>
+                            <li><strong>Hummus + Whole grain pita:</strong> 15g snack</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #9b59b6;">
+                    <h4><i class="fas fa-clock"></i> Sample Daily Meal Plan (65g protein)</h4>
+                    <ul>
+                        <li><strong>6:30 AM:</strong> Iron supplement (empty stomach)</li>
+                        <li><strong>7:30 AM:</strong> Oats (40g) + almonds (10) + milk (200ml) = <strong>18g protein</strong></li>
+                        <li><strong>12:30 PM:</strong> Dal (1 cup) + quinoa (1/2 cup) + vegetables = <strong>22g protein</strong></li>
+                        <li><strong>4:00 PM:</strong> Greek yogurt (150g) + walnuts (5) = <strong>12g protein</strong></li>
+                        <li><strong>7:30 PM:</strong> Tofu curry (100g) + roti (2) + vegetables = <strong>18g protein</strong></li>
+                        <li><strong>Total:</strong> <strong>70g high-quality protein</strong></li>
+                    </ul>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-plus"></i> Supplemental Support</h4>
+                        <ul>
+                            <li><strong>Plant protein powder:</strong> 20-25g post-workout</li>
+                            <li><strong>Spirulina:</strong> 5g = 3g protein + B-vitamins</li>
+                            <li><strong>Nutritional yeast:</strong> 2 tbsp = 8g protein</li>
+                            <li><strong>Hemp seeds:</strong> 3 tbsp = 10g protein</li>
+                            <li><strong>Digestive enzymes:</strong> If protein intolerance</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-chart-line"></i> Expected Improvements</h4>
+                        <ul>
+                            <li><strong>Week 2:</strong> BUN rises to 6-8 mg/dL</li>
+                            <li><strong>Week 4:</strong> Improved satiety, stable energy</li>
+                            <li><strong>Week 6:</strong> BUN 10-12 mg/dL, better iron transport</li>
+                            <li><strong>Week 8:</strong> Enhanced albumin synthesis</li>
+                            <li><strong>Week 12:</strong> Optimal protein status achieved</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #27ae60, #229954); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-target"></i> Success Indicators</h4>
+                    <p><strong>Protein adequacy confirmed by:</strong> BUN 10-15 mg/dL, improved muscle tone, stable energy throughout day, enhanced iron supplement tolerance, and faster hemoglobin recovery.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Functional Movement Modal -->
+    <div id="functionalMovementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-running"></i> Functional Movement Protocol</h2>
+                <span class="close" onclick="closeModal('functionalMovementModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-heartbeat"></i> Exercise as Medicine for Anemia</h4>
+                    <p><strong>Scientific Basis:</strong> Moderate exercise stimulates erythropoietin production, enhances iron absorption, improves circulation, and supports bone density - all critical for your recovery.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Cardiovascular Component</h4>
+                        <div class="value-display" style="color: #e74c3c; font-size: 1.5rem;">30 min Walk</div>
+                        <p><strong>Intensity:</strong> Brisk pace (can talk but breathless)</p>
+                        <p><strong>Heart rate:</strong> 60-70% max (120-140 bpm)</p>
+                        <p><strong>Purpose:</strong> Stimulate erythropoiesis</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Flexibility & Strength</h4>
+                        <div class="value-display" style="color: #9b59b6; font-size: 1.5rem;">20 min Yoga</div>
+                        <p><strong>Style:</strong> Gentle Hatha or restorative</p>
+                        <p><strong>Focus:</strong> Pranayama + bone-loading poses</p>
+                        <p><strong>Purpose:</strong> Stress reduction + bone density</p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-clock"></i> Optimal Daily Schedule</h4>
+                    <ul>
+                        <li><strong>7:00 AM:</strong> Iron supplement on empty stomach</li>
+                        <li><strong>8:00 AM:</strong> Protein-rich breakfast</li>
+                        <li><strong>9:00 AM:</strong> 30-minute brisk walk (outdoor preferred)</li>
+                        <li><strong>6:30 PM:</strong> 20-minute gentle yoga session</li>
+                        <li><strong>Rest days:</strong> 1-2 per week with light stretching only</li>
+                    </ul>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4><i class="fas fa-walking"></i> Progressive Walking Plan</h4>
+                        <ul>
+                            <li><strong>Week 1-2:</strong> 15 min moderate pace</li>
+                            <li><strong>Week 3-4:</strong> 20 min with inclines</li>
+                            <li><strong>Week 5-8:</strong> 25 min brisk pace</li>
+                            <li><strong>Week 9-12:</strong> 30 min + strength intervals</li>
+                            <li><strong>Monitor:</strong> Stop if dizzy or short of breath</li>
+                        </ul>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-om"></i> Targeted Yoga Sequence</h4>
+                        <ul>
+                            <li><strong>5 min:</strong> Pranayama (alternate nostril breathing)</li>
+                            <li><strong>10 min:</strong> Gentle asanas (warrior, tree, bridge)</li>
+                            <li><strong>3 min:</strong> Bone-loading poses (standing poses)</li>
+                            <li><strong>2 min:</strong> Savasana relaxation</li>
+                            <li><strong>Focus:</strong> Breath awareness over intensity</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #3498db;">
+                    <h4><i class="fas fa-dna"></i> Physiological Benefits</h4>
+                    <ul>
+                        <li><strong>Erythropoiesis:</strong> Exercise increases EPO production by 20-30%</li>
+                        <li><strong>Iron absorption:</strong> Improved gut motility enhances uptake</li>
+                        <li><strong>Circulation:</strong> Better oxygen delivery to tissues</li>
+                        <li><strong>Bone density:</strong> Weight-bearing exercise prevents osteoporosis</li>
+                        <li><strong>Mood regulation:</strong> Endorphins counter anemia-related depression</li>
+                    </ul>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Anemia-Specific Precautions</h4>
+                        <ul>
+                            <li><strong>Monitor symptoms:</strong> Dizziness, chest pain, excessive fatigue</li>
+                            <li><strong>Start slowly:</strong> Build intensity over 4-6 weeks</li>
+                            <li><strong>Hydration:</strong> Extra water needs due to low Hb</li>
+                            <li><strong>Iron timing:</strong> Exercise 2+ hours after iron supplement</li>
+                            <li><strong>Heart rate limits:</strong> Stay below 80% max until Hb >11</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-chart-line"></i> Recovery Acceleration</h4>
+                        <ul>
+                            <li><strong>Week 2:</strong> Improved sleep quality and mood</li>
+                            <li><strong>Week 4:</strong> Enhanced appetite and digestion</li>
+                            <li><strong>Week 6:</strong> Increased exercise tolerance</li>
+                            <li><strong>Week 8:</strong> Faster hemoglobin recovery</li>
+                            <li><strong>Week 12:</strong> Optimal fitness foundation established</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #27ae60;">
+                    <h4><i class="fas fa-mobile-alt"></i> Tracking & Motivation</h4>
+                    <ul>
+                        <li><strong>Fitness app:</strong> Track steps, heart rate, duration</li>
+                        <li><strong>Energy log:</strong> Rate energy levels 1-10 daily</li>
+                        <li><strong>Sleep quality:</strong> Monitor improvements</li>
+                        <li><strong>Symptom tracking:</strong> Breathlessness, fatigue patterns</li>
+                        <li><strong>Weekly photos:</strong> Document physical improvements</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-trophy"></i> Exercise-Enhanced Recovery</h4>
+                    <p><strong>Synergistic Effect:</strong> Combining moderate exercise with iron supplementation can accelerate hemoglobin recovery by 2-3 weeks compared to supplements alone. Movement is medicine for anemia!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hemoglobin Drop Risk Modal -->
+    <div id="hbDropModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Hemoglobin Drop Alert Protocol</h2>
+                <span class="close" onclick="closeModal('hbDropModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-ambulance"></i> Critical Red Flag</h4>
+                    <p><strong>Definition:</strong> Hemoglobin dropping >0.5 g/dL after 4 weeks of iron therapy indicates treatment failure or ongoing blood loss. This requires immediate investigation for occult bleeding sources.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Expected vs. Concerning Response</h4>
+                        <div class="value-display value-normal" style="font-size: 1.2rem;">Expected: Hb ↑ 1-2 g/dL</div>
+                        <div class="value-display value-low" style="font-size: 1.2rem;">Red Flag: Hb ↓ >0.5 g/dL</div>
+                        <p><strong>Timeline:</strong> After 4 weeks of adequate iron therapy</p>
+                        <p><strong>Significance:</strong> Suggests ongoing blood loss exceeding production</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Immediate Actions Required</h4>
+                        <ul>
+                            <li><strong>Stop waiting:</strong> Don't continue iron alone</li>
+                            <li><strong>Urgent labs:</strong> CBC, reticulocyte count, LDH</li>
+                            <li><strong>Stool testing:</strong> 3 consecutive FIT/FOBT tests</li>
+                            <li><strong>GI consultation:</strong> Within 1-2 weeks</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-search"></i> Comprehensive Bleeding Work-up</h4>
+                    <ul>
+                        <li><strong>Upper GI:</strong> EGD (endoscopy) - check for ulcers, gastritis, varices</li>
+                        <li><strong>Lower GI:</strong> Colonoscopy - screen for polyps, IBD, malignancy</li>
+                        <li><strong>Small bowel:</strong> Capsule endoscopy if upper/lower normal</li>
+                        <li><strong>Gynecologic:</strong> Detailed menstrual history, pelvic exam</li>
+                        <li><strong>Urologic:</strong> Cystoscopy if persistent hematuria</li>
+                    </ul>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-search"></i> Common Hidden Bleeding Sources</h4>
+                        <ul>
+                            <li><strong>Peptic ulcers:</strong> H. pylori, NSAIDs, stress</li>
+                            <li><strong>Colorectal:</strong> Polyps, early malignancy, IBD</li>
+                            <li><strong>Small intestine:</strong> Crohn's, angiodysplasia</li>
+                            <li><strong>Gynecologic:</strong> Heavy menses, fibroids, polyps</li>
+                            <li><strong>Medications:</strong> Anticoagulants, aspirin</li>
+                            <li><strong>Systemic:</strong> Coagulopathy, platelet dysfunction</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-clock"></i> Investigation Timeline</h4>
+                        <ul>
+                            <li><strong>Day 1-3:</strong> Stool occult blood x3, CBC, coags</li>
+                            <li><strong>Week 1:</strong> GI consultation, EGD scheduled</li>
+                            <li><strong>Week 2:</strong> Upper endoscopy performed</li>
+                            <li><strong>Week 3:</strong> Colonoscopy if upper normal</li>
+                            <li><strong>Week 4:</strong> Capsule endoscopy if needed</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #3498db;">
+                    <h4><i class="fas fa-flask"></i> Additional Laboratory Assessment</h4>
+                    <ul>
+                        <li><strong>Hemolysis screen:</strong> LDH, haptoglobin, indirect bilirubin</li>
+                        <li><strong>Coagulation studies:</strong> PT/INR, aPTT, platelet function</li>
+                        <li><strong>H. pylori testing:</strong> Stool antigen or breath test</li>
+                        <li><strong>Celiac screening:</strong> tTG-IgA (malabsorption cause)</li>
+                        <li><strong>B12/folate levels:</strong> Rule out combined deficiencies</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #9b59b6;">
+                    <h4><i class="fas fa-user-md"></i> Specialist Referral Criteria</h4>
+                    <ul>
+                        <li><strong>Gastroenterology:</strong> Any GI bleeding suspicion (urgent)</li>
+                        <li><strong>Gynecology:</strong> Heavy menstrual bleeding patterns</li>
+                        <li><strong>Hematology:</strong> If hemolysis or bleeding disorder suspected</li>
+                        <li><strong>Surgery:</strong> If structural lesions requiring intervention</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-ambulance"></i> Emergency Criteria</h4>
+                    <p><strong>Seek immediate medical attention if:</strong> Hb drops >2 g/dL, symptomatic anemia (chest pain, severe SOB), active bleeding signs (melena, hematochezia), or hemodynamic instability. Don't wait for scheduled follow-up.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Persistent Urine Abnormalities Modal -->
+    <div id="persistentUrineModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-microscope"></i> Persistent Urine Abnormalities Protocol</h2>
+                <span class="close" onclick="closeModal('persistentUrineModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-kidney"></i> Renal Monitoring Alert</h4>
+                    <p><strong>Current Finding:</strong> Trace blood (2-3 RBC/HPF) and microalbuminuria (47.4 µg/mg ACR) detected. Persistence beyond 6 weeks warrants nephrology evaluation to prevent chronic kidney disease.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Current Abnormalities</h4>
+                        <div class="value-display value-low">Blood: Positive</div>
+                        <div class="value-display value-low">Protein: 47.4 µg/mg</div>
+                        <p><strong>Normal ACR:</strong> <30 µg/mg</p>
+                        <p><strong>Significance:</strong> Early kidney involvement</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Monitoring Schedule</h4>
+                        <ul>
+                            <li><strong>Week 2:</strong> Repeat urinalysis</li>
+                            <li><strong>Week 4:</strong> UA + ACR measurement</li>
+                            <li><strong>Week 6:</strong> If persistent → Nephrology</li>
+                            <li><strong>Ongoing:</strong> Monthly monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Red Flags Requiring Immediate Nephrology Referral</h4>
+                    <ul>
+                        <li><strong>ACR progression:</strong> >100 µg/mg or doubling from baseline</li>
+                        <li><strong>Gross hematuria:</strong> Visible blood in urine</li>
+                        <li><strong>Rising creatinine:</strong> >0.3 mg/dL increase from baseline</li>
+                        <li><strong>Hypertension:</strong> New onset or worsening BP control</li>
+                        <li><strong>Edema:</strong> Facial or peripheral swelling</li>
+                        <li><strong>Foamy urine:</strong> Suggesting significant proteinuria</li>
+                    </ul>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-search"></i> Possible Causes of Findings</h4>
+                        <ul>
+                            <li><strong>Functional (reversible):</strong> Dehydration, iron deficiency</li>
+                            <li><strong>Glomerular:</strong> Early diabetic nephropathy, IgA nephropathy</li>
+                            <li><strong>Tubular:</strong> Interstitial nephritis, medication toxicity</li>
+                            <li><strong>Vascular:</strong> Hypertensive nephrosclerosis</li>
+                            <li><strong>Obstruction:</strong> Stones, tumors (less likely)</li>
+                            <li><strong>Systemic:</strong> Lupus, vasculitis, infections</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-shield-alt"></i> Protective Measures</h4>
+                        <ul>
+                            <li><strong>Hydration:</strong> 2.5L water daily (monitor input/output)</li>
+                            <li><strong>BP control:</strong> Target <130/80 mmHg</li>
+                            <li><strong>Sodium restriction:</strong> <2g daily (5g salt)</li>
+                            <li><strong>Protein moderation:</strong> 0.8-1.0 g/kg body weight</li>
+                            <li><strong>NSAID avoidance:</strong> Use acetaminophen instead</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #3498db;">
+                    <h4><i class="fas fa-flask"></i> Comprehensive Renal Work-up (if persistent)</h4>
+                    <ul>
+                        <li><strong>Laboratory:</strong> Comprehensive metabolic panel, phosphorus, magnesium</li>
+                        <li><strong>Immunology:</strong> ANA, anti-dsDNA, ANCA, complement levels</li>
+                        <li><strong>Infectious:</strong> Hepatitis B/C, HIV (if risk factors)</li>
+                        <li><strong>Imaging:</strong> Renal ultrasound ± Doppler studies</li>
+                        <li><strong>Specialized:</strong> 24-hour urine collection for protein/creatinine</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #27ae60;">
+                    <h4><i class="fas fa-chart-line"></i> Expected Improvement Timeline</h4>
+                    <ul>
+                        <li><strong>Week 2-4:</strong> Hematuria should resolve as iron status improves</li>
+                        <li><strong>Week 4-6:</strong> Microalbuminuria should decrease to <30 µg/mg</li>
+                        <li><strong>Week 8:</strong> Complete normalization expected if functional</li>
+                        <li><strong>If no improvement:</strong> Suggests underlying renal pathology</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-user-md"></i> Nephrology Consultation Goals</h4>
+                    <p><strong>Assessment for:</strong> Early chronic kidney disease, glomerular disease screening, appropriate ACE inhibitor therapy, and long-term renal protection strategies. Early intervention can prevent progression.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Calcium Emergency Modal -->
+    <div id="lowCalciumModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-ambulance"></i> Severe Hypocalcemia Emergency Protocol</h2>
+                <span class="close" onclick="closeModal('lowCalciumModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Life-Threatening Emergency</h4>
+                    <p><strong>Critical Threshold:</strong> Serum calcium <8.0 mg/dL (current: 8.48 mg/dL) can cause severe neuromuscular instability, tetany, seizures, and cardiac arrhythmias requiring immediate IV treatment.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Emergency Symptoms</h4>
+                        <ul>
+                            <li><strong>Neuromuscular:</strong> Tetany, muscle spasms</li>
+                            <li><strong>Neurologic:</strong> Seizures, altered mental status</li>
+                            <li><strong>Cardiovascular:</strong> QT prolongation, arrhythmias</li>
+                            <li><strong>Respiratory:</strong> Laryngospasm, stridor</li>
+                        </ul>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Physical Signs</h4>
+                        <ul>
+                            <li><strong>Chvostek's sign:</strong> Facial twitching when tapped</li>
+                            <li><strong>Trousseau's sign:</strong> Hand spasm with BP cuff</li>
+                            <li><strong>Paresthesias:</strong> Perioral, fingertip tingling</li>
+                            <li><strong>Carpopedal spasm:</strong> Hand/foot cramping</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-hospital"></i> Emergency Room Protocol</h4>
+                    <ul>
+                        <li><strong>Immediate:</strong> IV access, cardiac monitoring, O2 saturation</li>
+                        <li><strong>Labs:</strong> Ionized calcium, magnesium, phosphorus, albumin, PTH</li>
+                        <li><strong>ECG:</strong> Check for QT prolongation, arrhythmias</li>
+                        <li><strong>IV calcium:</strong> 1-2 ampules calcium gluconate in 50-100ml NS over 10-20 min</li>
+                        <li><strong>Repeat labs:</strong> Calcium level after initial treatment</li>
+                    </ul>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4><i class="fas fa-syringe"></i> IV Calcium Protocol</h4>
+                        <ul>
+                            <li><strong>First line:</strong> Calcium gluconate 1-2g (10-20ml of 10%)</li>
+                            <li><strong>Dilution:</strong> In 50-100ml normal saline</li>
+                            <li><strong>Rate:</strong> Over 10-20 minutes (not IV push)</li>
+                            <li><strong>Monitoring:</strong> Continuous cardiac monitoring</li>
+                            <li><strong>Repeat:</strong> Every 6 hours as needed</li>
+                        </ul>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-pills"></i> Adjunctive Treatments</h4>
+                        <ul>
+                            <li><strong>Magnesium:</strong> 1-2g IV if Mg <1.5 mg/dL</li>
+                            <li><strong>Vitamin D:</strong> Calcitriol 0.25-0.5 mcg BID</li>
+                            <li><strong>Oral calcium:</strong> 1-2g elemental calcium daily</li>
+                            <li><strong>Seizure control:</strong> Benzodiazepines if needed</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-search"></i> Precipitating Factors</h4>
+                        <ul>
+                            <li><strong>Vitamin D deficiency:</strong> Most common cause</li>
+                            <li><strong>Hypoparathyroidism:</strong> Post-surgical, autoimmune</li>
+                            <li><strong>Magnesium deficiency:</strong> Impairs PTH function</li>
+                            <li><strong>Medications:</strong> Loop diuretics, bisphosphonates</li>
+                            <li><strong>Malabsorption:</strong> Celiac, Crohn's disease</li>
+                            <li><strong>Rapid correction:</strong> Phosphate administration</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-heartbeat"></i> Cardiac Complications</h4>
+                        <ul>
+                            <li><strong>QT prolongation:</strong> Risk of torsades de pointes</li>
+                            <li><strong>Heart failure:</strong> Reduced cardiac contractility</li>
+                            <li><strong>Hypotension:</strong> Vascular smooth muscle effects</li>
+                            <li><strong>Bradycardia:</strong> Conduction system depression</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #9b59b6;">
+                    <h4><i class="fas fa-user-md"></i> Specialist Consultations</h4>
+                    <ul>
+                        <li><strong>Endocrinology:</strong> For PTH evaluation and management</li>
+                        <li><strong>Nephrology:</strong> If renal involvement suspected</li>
+                        <li><strong>Cardiology:</strong> If significant arrhythmias present</li>
+                        <li><strong>Critical Care:</strong> If ICU monitoring required</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #27ae60;">
+                    <h4><i class="fas fa-home"></i> Prevention Strategy</h4>
+                    <ul>
+                        <li><strong>Weekly monitoring:</strong> Serum calcium levels during treatment</li>
+                        <li><strong>Adequate vitamin D:</strong> Target 25-OH vitamin D >30 ng/mL</li>
+                        <li><strong>Magnesium repletion:</strong> Maintain Mg >1.8 mg/dL</li>
+                        <li><strong>Patient education:</strong> Recognize early symptoms</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-phone"></i> When to Call 911</h4>
+                    <p><strong>Immediate emergency care if:</strong> Seizures, difficulty breathing, severe muscle spasms, chest pain, loss of consciousness, or any signs of tetany. Do not attempt to drive - call emergency services immediately.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Neurologic Symptoms Modal -->
+    <div id="neurologicSymptomsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-brain"></i> Persistent Neurologic Symptoms Protocol</h2>
+                <span class="close" onclick="closeModal('neurologicSymptomsModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Neurologic Monitoring Alert</h4>
+                    <p><strong>Concern:</strong> Neurologic symptoms persisting despite laboratory improvement may indicate functional B12 deficiency, peripheral neuropathy, or other neurological conditions requiring specialized evaluation.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4>Symptoms Requiring Evaluation</h4>
+                        <ul>
+                            <li><strong>Sensory:</strong> Persistent numbness, tingling</li>
+                            <li><strong>Motor:</strong> Weakness, balance problems</li>
+                            <li><strong>Cognitive:</strong> Memory issues, confusion</li>
+                            <li><strong>Psychiatric:</strong> Depression, anxiety, irritability</li>
+                        </ul>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Timeline for Concern</h4>
+                        <ul>
+                            <li><strong>Week 4:</strong> Some improvement expected</li>
+                            <li><strong>Week 8:</strong> Significant improvement should occur</li>
+                            <li><strong>Week 12:</strong> Near-complete resolution expected</li>
+                            <li><strong>If persistent:</strong> Neurology consultation needed</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Red Flag Neurologic Symptoms</h4>
+                    <ul>
+                        <li><strong>Progressive weakness:</strong> Worsening despite treatment</li>
+                        <li><strong>Gait disturbance:</strong> Unsteady walking, falls</li>
+                        <li><strong>Cognitive decline:</strong> Memory loss, confusion</li>
+                        <li><strong>Severe mood changes:</strong> Depression, psychosis</li>
+                        <li><strong>Autonomic symptoms:</strong> Bladder/bowel dysfunction</li>
+                        <li><strong>Visual disturbances:</strong> Blurred vision, diplopia</li>
+                    </ul>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-search"></i> Potential Underlying Causes</h4>
+                        <ul>
+                            <li><strong>Functional B12 deficiency:</strong> Despite normal serum levels</li>
+                            <li><strong>Peripheral neuropathy:</strong> Diabetic, autoimmune, toxic</li>
+                            <li><strong>Thyroid disorders:</strong> Hypo/hyperthyroidism</li>
+                            <li><strong>Autoimmune:</strong> Multiple sclerosis, lupus</li>
+                            <li><strong>Nutritional:</strong> Thiamine, folate, copper deficiency</li>
+                            <li><strong>Medication-induced:</strong> Metformin, PPIs, others</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-brain"></i> Neurologic Evaluation</h4>
+                        <ul>
+                            <li><strong>Clinical assessment:</strong> Detailed neurologic exam</li>
+                            <li><strong>Electrophysiology:</strong> EMG/NCS for neuropathy</li>
+                            <li><strong>Imaging:</strong> Brain/spine MRI if indicated</li>
+                            <li><strong>CSF analysis:</strong> If inflammatory process suspected</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #3498db;">
+                    <h4><i class="fas fa-flask"></i> Specialized Laboratory Testing</h4>
+                    <ul>
+                        <li><strong>Functional B12:</strong> Methylmalonic acid, homocysteine</li>
+                        <li><strong>Thyroid function:</strong> TSH, Free T4, Free T3</li>
+                        <li><strong>Autoimmune panel:</strong> ANA, anti-dsDNA, RF</li>
+                        <li><strong>Trace elements:</strong> Copper, zinc levels</li>
+                        <li><strong>Diabetes screening:</strong> HbA1c, glucose tolerance</li>
+                        <li><strong>Vitamin levels:</strong> Thiamine, folate, vitamin E</li>
+                    </ul>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4><i class="fas fa-pills"></i> Functional B12 Deficiency</h4>
+                        <ul>
+                            <li><strong>Despite high B12:</strong> 852 pg/mL (elevated)</li>
+                            <li><strong>Check MMA:</strong> >0.4 µmol/L indicates deficiency</li>
+                            <li><strong>Treatment:</strong> Intramuscular B12 injections</li>
+                            <li><strong>Duration:</strong> Weekly x4, then monthly</li>
+                        </ul>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-user-md"></i> Specialist Referrals</h4>
+                        <ul>
+                            <li><strong>Neurology:</strong> Primary consultation</li>
+                            <li><strong>Endocrinology:</strong> If thyroid/diabetes suspected</li>
+                            <li><strong>Rheumatology:</strong> If autoimmune features</li>
+                            <li><strong>Psychiatry:</strong> If mood/cognitive symptoms prominent</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #9b59b6;">
+                    <h4><i class="fas fa-stethoscope"></i> Neurologic Examination Focus</h4>
+                    <ul>
+                        <li><strong>Sensory testing:</strong> Vibration, position, pinprick</li>
+                        <li><strong>Motor assessment:</strong> Strength, tone, reflexes</li>
+                        <li><strong>Coordination:</strong> Finger-to-nose, heel-to-shin</li>
+                        <li><strong>Gait analysis:</strong> Tandem walk, Romberg test</li>
+                        <li><strong>Cognitive screening:</strong> MMSE or MoCA</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #27ae60;">
+                    <h4><i class="fas fa-chart-line"></i> Expected Recovery Pattern</h4>
+                    <ul>
+                        <li><strong>Sensory symptoms:</strong> First to improve (2-4 weeks)</li>
+                        <li><strong>Motor function:</strong> Gradual improvement (4-8 weeks)</li>
+                        <li><strong>Cognitive issues:</strong> May take 8-12 weeks</li>
+                        <li><strong>Mood symptoms:</strong> Often improve with energy levels</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-target"></i> Neurology Consultation Goals</h4>
+                    <p><strong>Comprehensive assessment for:</strong> Peripheral neuropathy, central nervous system involvement, functional vitamin deficiencies, and development of appropriate treatment strategies for neurologic recovery.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Flow Modal -->
+    <div id="dailyFlowModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-clock"></i> Daily Flow at a Glance</h2>
+                <span class="close" onclick="closeModal('dailyFlowModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-infinity"></i> Circadian-Optimized Recovery Schedule</h4>
+                    <p><strong>Foundation:</strong> This timeline synchronizes supplement absorption, exercise physiology, and Ayurvedic principles for maximum healing efficiency.</p>
+                </div>
+
+                <div style="background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #667eea;">
+                    <h4><i class="fas fa-sun"></i> Morning Protocol (05:30 - 10:00)</h4>
+                    <div class="detail-grid">
+                        <div class="detail-card">
+                            <h4>05:30 - Hydrate & Prime</h4>
+                            <p><strong>What:</strong> 250ml warm water + ½ lemon</p>
+                            <p><strong>Why:</strong> Kicks stomach acid up for iron pill; 5 deep belly-breaths reset vagal tone</p>
+                            <p><strong>Science:</strong> Citric acid enhances iron absorption by 3-4x</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>06:00 - Iron Dose</h4>
+                            <p><strong>What:</strong> 65mg ferrous bisglycinate + 250mg vitamin C</p>
+                            <p><strong>Why:</strong> Empty stomach = 2× absorption</p>
+                            <p><strong>Timing:</strong> Peak gastric acid production window</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>06:15-07:00 - Yoga Session A</h4>
+                            <p><strong>Energise Sequence:</strong></p>
+                            <ul>
+                                <li>Warm-up → Surya Namaskar × 4</li>
+                                <li>Core asana set → builds blood flow to marrow</li>
+                                <li>Nādi Śodhana 5 min for oxygenation</li>
+                            </ul>
+                        </div>
+                        <div class="detail-card">
+                            <h4>07:15 - Rebuild Smoothie</h4>
+                            <p><strong>Recipe:</strong> Ragi + soymilk + dates + spinach + amla</p>
+                            <p><strong>Benefits:</strong> Iron + Ca + Vit C + complete plant protein</p>
+                            <p><strong>Protein:</strong> ~18g high-quality amino acids</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(249, 147, 251, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #f093fb;">
+                    <h4><i class="fas fa-sun"></i> Midday Protocol (10:00 - 16:00)</h4>
+                    <div class="detail-grid">
+                        <div class="detail-card">
+                            <h4>10:00 - Snack & B-vit Top-up</h4>
+                            <p><strong>What:</strong> Orange + roasted pumpkin seeds</p>
+                            <p><strong>Nutrients:</strong> Zn, Mg, protein, vitamin C</p>
+                            <p><strong>Purpose:</strong> Mid-morning energy stability</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>13:00 - Main Meal</h4>
+                            <p><strong>Structure:</strong> Rotates daily (see menu grid)</p>
+                            <p><strong>Always includes:</strong></p>
+                            <ul>
+                                <li>Legume/lentil (protein + iron)</li>
+                                <li>Whole grain (B-vitamins)</li>
+                                <li>Dark leafy veg (folate + iron)</li>
+                                <li>Sesame/peanut/cashew dressing (healthy fats)</li>
+                            </ul>
+                        </div>
+                        <div class="detail-card">
+                            <h4>14:00 - Ayur-Digestive Tonic</h4>
+                            <p><strong>What:</strong> Lohāsava 15ml 1:1 with water</p>
+                            <p><strong>Purpose:</strong> Enhances Agni, supplies herbal iron</p>
+                            <p><strong>Timing:</strong> Post-meal for optimal absorption</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>16:00 - Calcium Dose</h4>
+                            <p><strong>What:</strong> 500mg calcium carbonate + 400 IU vit D3</p>
+                            <p><strong>With:</strong> Soy-yogurt-fruit bowl</p>
+                            <p><strong>Spacing:</strong> 2+ hours after iron for optimal absorption</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(79, 172, 254, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #4facfe;">
+                    <h4><i class="fas fa-moon"></i> Evening Protocol (18:00 - 22:00)</h4>
+                    <div class="detail-grid">
+                        <div class="detail-card">
+                            <h4>18:00-18:30 - Yoga Session B</h4>
+                            <p><strong>Unwind Sequence:</strong></p>
+                            <ul>
+                                <li>Restorative poses → hip openers</li>
+                                <li>Supported backbends</li>
+                                <li>Viparita Karani (legs up wall)</li>
+                                <li>Bhrāmari 3 min → calm CNS, aid sleep</li>
+                            </ul>
+                        </div>
+                        <div class="detail-card">
+                            <h4>19:00 - Light Dinner</h4>
+                            <p><strong>Options:</strong> Veg-loaded soup or khichdi</p>
+                            <p><strong>Protein:</strong> Tofu or paneer</p>
+                            <p><strong>Salad:</strong> Carrot-beet with lime</p>
+                            <p><strong>Goal:</strong> Easy digestion for better sleep</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>20:30 - Herbal Wind-Down</h4>
+                            <p><strong>Drink:</strong> Ashwagandha 3g in warm sesame-milk</p>
+                            <p><strong>Supplement:</strong> Pravāl Piṣṭi 250mg</p>
+                            <p><strong>Purpose:</strong> Micro-dosed coral calcium + adaptogen</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>22:00 - Bedtime Ritual</h4>
+                            <p><strong>Practice:</strong> 5 min body-scan meditation</p>
+                            <p><strong>Journal:</strong> Gratitude practice</p>
+                            <p><strong>Purpose:</strong> Mood centering, circadian reset</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Key Spacing Rules</h4>
+                    <ul>
+                        <li><strong>Iron ↔︎ Calcium/Tea/Coffee:</strong> ≥ 2 hour gap</li>
+                        <li><strong>Iron ↔︎ Triphala/Avipathy:</strong> ≥ 4 hour gap (tannin interference)</li>
+                        <li><strong>Caffeine curfew:</strong> Max 1 chai at 11 AM; none after 2 PM</li>
+                        <li><strong>Herb-drug spacing:</strong> Punarnava Mandur ≥ 2h from allopathic iron</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-chart-line"></i> Daily Success Tracking</h4>
+                    <p><strong>Monitor:</strong> Energy levels (1-10), dizziness episodes, muscle cramps, sleep quality. Flag any concerning trends early for protocol adjustments.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Matrix Modal -->
+    <div id="menuMatrixModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-utensils"></i> 7-Day Vegetarian Menu Matrix</h2>
+                <span class="close" onclick="closeModal('menuMatrixModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-seedling"></i> Nutritionally Strategic Meal Planning</h4>
+                    <p><strong>Design Principle:</strong> Swap veggies with local/seasonal produce while maintaining color diversity and pulse variety for optimal nutrient density and recovery acceleration.</p>
+                </div>
+
+                <div style="background: rgba(46, 204, 113, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #27ae60;">
+                    <h4><i class="fas fa-lightbulb"></i> Why This Menu Works</h4>
+                    <ul>
+                        <li><strong>Legumes + Whole grains:</strong> Complete amino-acid profile → raises low BUN</li>
+                        <li><strong>Dark greens + Jaggery + Citrus:</strong> Non-heme iron enhancement pairings</li>
+                        <li><strong>Sesame, Ragi, Tofu, Amaranth:</strong> Plant calcium to complement tablets</li>
+                        <li><strong>Color rotation:</strong> Ensures diverse phytonutrient spectrum</li>
+                    </ul>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4><i class="fas fa-calendar-day"></i> Monday</h4>
+                        <p><strong>Lunch Power Plate:</strong></p>
+                        <p>Rajma-Brown-Rice Buddha bowl + spinach-sesame salad</p>
+                        <p><strong>Dinner Light & Easy:</strong></p>
+                        <p>Palak-Paneer Millets; carrot-beet thoran</p>
+                        <p><strong>Key nutrients:</strong> Iron, protein, calcium, B-vitamins</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-calendar-day"></i> Tuesday</h4>
+                        <p><strong>Lunch Power Plate:</strong></p>
+                        <p>Chickpea & Quinoa Tabbouleh; kale-peanut slaw</p>
+                        <p><strong>Dinner Light & Easy:</strong></p>
+                        <p>Drumstick-Leaf Dal + red-rice dosa</p>
+                        <p><strong>Key nutrients:</strong> Complete proteins, iron, magnesium</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-calendar-day"></i> Wednesday</h4>
+                        <p><strong>Lunch Power Plate:</strong></p>
+                        <p>Horse-Gram (Kulith) Curry; jowar roti; cabbage stir-fry</p>
+                        <p><strong>Dinner Light & Easy:</strong></p>
+                        <p>Masoor-Soup; oven-baked sweet potato</p>
+                        <p><strong>Key nutrients:</strong> High iron, fiber, beta-carotene</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-calendar-day"></i> Thursday</h4>
+                        <p><strong>Lunch Power Plate:</strong></p>
+                        <p>Black-Eyed-Pea Biryani (foxtail millet); cucumber raita</p>
+                        <p><strong>Dinner Light & Easy:</strong></p>
+                        <p>Tofu-Methi Malai (cashew-lite) + barley phulka</p>
+                        <p><strong>Key nutrients:</strong> Calcium, folate, healthy fats</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-calendar-day"></i> Friday</h4>
+                        <p><strong>Lunch Power Plate:</strong></p>
+                        <p>Moong-Sprout Khichdi; amaranth greens</p>
+                        <p><strong>Dinner Light & Easy:</strong></p>
+                        <p>Veg Hakka Rice-Noodles (brown rice noodles)</p>
+                        <p><strong>Key nutrients:</strong> Easy digestion, sprouted proteins</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-calendar-day"></i> Saturday</h4>
+                        <p><strong>Lunch Power Plate:</strong></p>
+                        <p>Paneer-Tikka Wrap (whole-wheat) + bell-pepper strips</p>
+                        <p><strong>Dinner Light & Easy:</strong></p>
+                        <p>Lentil-Kootu; idiyappam; coconut chutney</p>
+                        <p><strong>Key nutrients:</strong> Calcium, vitamin C, MCTs</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-calendar-day"></i> Sunday</h4>
+                        <p><strong>Lunch Power Plate:</strong></p>
+                        <p>Pesarattu (Green-Moong Crêpe) + ginger chutney; pomegranate salad</p>
+                        <p><strong>Dinner Light & Easy:</strong></p>
+                        <p>Veggie Sambar with ragi idli</p>
+                        <p><strong>Key nutrients:</strong> Antioxidants, calcium, probiotics</p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #9b59b6;">
+                    <h4><i class="fas fa-calculator"></i> Daily Nutritional Targets</h4>
+                    <ul>
+                        <li><strong>Protein:</strong> 60-70g total (20-25g per main meal)</li>
+                        <li><strong>Iron:</strong> 25-30mg from food sources</li>
+                        <li><strong>Calcium:</strong> 800-1000mg from plant sources</li>
+                        <li><strong>Vitamin C:</strong> 100-150mg to enhance iron absorption</li>
+                        <li><strong>Folate:</strong> 400-600mcg from dark leafy greens</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #3498db;">
+                    <h4><i class="fas fa-leaf"></i> Seasonal Adaptations</h4>
+                    <ul>
+                        <li><strong>Summer:</strong> Increase cooling foods (cucumber, mint, coconut)</li>
+                        <li><strong>Monsoon:</strong> Add warming spices (ginger, turmeric, black pepper)</li>
+                        <li><strong>Winter:</strong> Include root vegetables, nuts, warming grains</li>
+                        <li><strong>Local sourcing:</strong> Replace exotic ingredients with regional equivalents</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-utensils"></i> Meal Prep Success Tips</h4>
+                    <p><strong>Weekly preparation:</strong> Cook grains/lentils in batches, pre-cut vegetables, prepare spice mixes. Keep backup meals ready for busy days to maintain consistency in recovery nutrition.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yoga Catalogue Modal -->
+    <div id="yogaCatalogueModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-om"></i> Therapeutic Yoga Catalogue</h2>
+                <span class="close" onclick="closeModal('yogaCatalogueModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-heartbeat"></i> Evidence-Based Yoga for Anemia Recovery</h4>
+                    <p><strong>Scientific Foundation:</strong> Specific asanas and pranayama techniques designed to enhance circulation, stimulate bone marrow, and support mineral absorption while respecting energy limitations during recovery.</p>
+                </div>
+
+                <div style="background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #667eea;">
+                    <h4><i class="fas fa-sun"></i> Morning Energizing Sequence (Session A)</h4>
+                    <div class="detail-grid">
+                        <div class="detail-card">
+                            <h4>Tādāsana → Utkatāsana Flow</h4>
+                            <p><strong>Sets:</strong> 3 × 5 breaths</p>
+                            <p><strong>Physiologic Target:</strong> Pumps venous return; primes bone marrow</p>
+                            <p><strong>Technique:</strong> Smooth transitions, focus on leg strength</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Vīrabhadrāsana II + Utthita Parśvakonāsana</h4>
+                            <p><strong>Sets:</strong> 2 × 6 breaths each side</p>
+                            <p><strong>Physiologic Target:</strong> Opens hip flexors → better pelvic circulation</p>
+                            <p><strong>Benefit:</strong> Addresses menstrual iron loss patterns</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Śalabhāsana / Bhujangāsana</h4>
+                            <p><strong>Sets:</strong> 3 × 4 breaths</p>
+                            <p><strong>Physiologic Target:</strong> Stimulates kidneys & adrenal energy</p>
+                            <p><strong>Modification:</strong> Use props if back strength limited</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Nādi Śodhana Prāṇāyāma</h4>
+                            <p><strong>Duration:</strong> 5 minutes</p>
+                            <p><strong>Purpose:</strong> Balances autonomic nervous system</p>
+                            <p><strong>Benefit:</strong> Improves oxygen utilization efficiency</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(79, 172, 254, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #4facfe;">
+                    <h4><i class="fas fa-moon"></i> Evening Restorative Sequence (Session B)</h4>
+                    <div class="detail-grid">
+                        <div class="detail-card">
+                            <h4>Setu Bandha (Supported Bridge)</h4>
+                            <p><strong>Hold:</strong> 60 seconds × 2 sets</p>
+                            <p><strong>Physiologic Target:</strong> Thyroid & parathyroid massage</p>
+                            <p><strong>Benefit:</strong> Aids calcium metabolism regulation</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Viparita Karani (Legs-Up-Wall)</h4>
+                            <p><strong>Hold:</strong> 5-7 minutes</p>
+                            <p><strong>Purpose:</strong> Relieves ankle swelling</p>
+                            <p><strong>Effect:</strong> Iron-rich blood pools to core organs</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Supported Hip Openers</h4>
+                            <p><strong>Poses:</strong> Baddha Konasana, Supta Pigeon</p>
+                            <p><strong>Duration:</strong> 3-5 minutes each</p>
+                            <p><strong>Benefit:</strong> Releases pelvic tension, improves circulation</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Bhrāmari Prāṇāyāma</h4>
+                            <p><strong>Rounds:</strong> 10 complete cycles</p>
+                            <p><strong>Purpose:</strong> Calms central nervous system</p>
+                            <p><strong>Effect:</strong> Aids sleep quality and recovery</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(67, 233, 123, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #43e97b;">
+                    <h4><i class="fas fa-brain"></i> Deep Restoration Practice</h4>
+                    <div class="detail-grid">
+                        <div class="detail-card">
+                            <h4>Śavāsana + Yoga Nidrā</h4>
+                            <p><strong>Duration:</strong> 8 minutes minimum</p>
+                            <p><strong>Scientific Evidence:</strong> Small RCT (2022) showed rise in Hb after 8 weeks</p>
+                            <p><strong>Technique:</strong> Progressive body relaxation with awareness</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Body Scan Meditation</h4>
+                            <p><strong>Focus:</strong> Systematic awareness from toes to head</p>
+                            <p><strong>Benefit:</strong> Activates parasympathetic healing response</p>
+                            <p><strong>Goal:</strong> Deep cellular recovery and regeneration</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Anemia-Specific Modifications</h4>
+                    <ul>
+                        <li><strong>Avoid:</strong> Intense kumbhaka (breath retention) until Hb > 12</li>
+                        <li><strong>Modify:</strong> Reduce inversions if dizziness occurs</li>
+                        <li><strong>Listen:</strong> Stop immediately if chest pain or severe fatigue</li>
+                        <li><strong>Pace:</strong> Slower transitions, longer holds in restorative poses</li>
+                        <li><strong>Hydrate:</strong> Extra water before and after practice</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #9b59b6;">
+                    <h4><i class="fas fa-chart-line"></i> Progressive Intensity Guidelines</h4>
+                    <ul>
+                        <li><strong>Weeks 1-4:</strong> Focus on gentle flows, restorative poses</li>
+                        <li><strong>Weeks 5-8:</strong> Add longer holds, mild strengthening</li>
+                        <li><strong>Weeks 9-12:</strong> Gradually increase flow intensity</li>
+                        <li><strong>Monitor:</strong> Heart rate should not exceed 70% max</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-om"></i> Integration with Medical Treatment</h4>
+                    <p><strong>Synergistic healing:</strong> Yoga enhances iron absorption, reduces stress-induced mineral depletion, and accelerates overall recovery when combined with medical supplementation. Practice 2+ hours after iron intake.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ayurvedic Support Modal -->
+    <div id="ayurvedicModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-leaf"></i> Ayurvedic Materia Medica</h2>
+                <span class="close" onclick="closeModal('ayurvedicModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="interpretation">
+                    <h4><i class="fas fa-yin-yang"></i> Classical Preparations for Holistic Recovery</h4>
+                    <p><strong>Safety First:</strong> All formulations from GMP-certified pharmacy with heavy-metal safety review. Integration with modern medicine for optimal synergistic healing.</p>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h4><i class="fas fa-capsules"></i> Punarnava Mandur</h4>
+                        <p><strong>Dose:</strong> 500mg tablet TID after meals</p>
+                        <p><strong>Rasa/Guna:</strong> Deepana-Pācana (rekindles Agni), Rakta-vardhaka, Śothaghna</p>
+                        <p><strong>Modern Translation:</strong> Iron-bearing herbo-mineral; mild diuretic → reduces microalbuminuria risk</p>
+                        <p><strong>Spacing:</strong> ≥2h from allopathic iron</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-tint"></i> Lohāsava</h4>
+                        <p><strong>Dose:</strong> 15ml BID post-meals</p>
+                        <p><strong>Rasa/Guna:</strong> Fermented iron tonic with Pippali, Chitrak</p>
+                        <p><strong>Modern Translation:</strong> Liquid form bypasses low stomach acid; counters fatigue rapidly</p>
+                        <p><strong>Monitor:</strong> Pause when ferritin hits 70 ng/ml</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-bone"></i> Pravāl Piṣṭi</h4>
+                        <p><strong>Dose:</strong> 250mg BID with warm milk/honey</p>
+                        <p><strong>Rasa/Guna:</strong> Coral-calx (CaCO₃) with cooling sheeta guna</p>
+                        <p><strong>Modern Translation:</strong> Bio-available Ca + trace minerals, gentle on gut</p>
+                        <p><strong>Contraindication:</strong> History of kidney stones</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-leaf"></i> Ashwagandha Churna</h4>
+                        <p><strong>Dose:</strong> 3g at bedtime in warm sesame milk</p>
+                        <p><strong>Rasa/Guna:</strong> Rasāyana, Balya, Medhya (tonic for strength & nerves)</p>
+                        <p><strong>Modern Translation:</strong> Adaptogen with evidence for ↑Hb and ↓cortisol</p>
+                        <p><strong>Timing:</strong> Evening for optimal sleep enhancement</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-seedling"></i> Triphala + Avipathy Choornam</h4>
+                        <p><strong>Dose:</strong> 1 Tbsp Triphala + ½ tsp Avipathy at 21:00</p>
+                        <p><strong>Rasa/Guna:</strong> Mild laxation, liver detox, pitta-pacification</p>
+                        <p><strong>Modern Translation:</strong> Regular BM → optimized iron uptake next morning</p>
+                        <p><strong>Spacing:</strong> ≥4h from iron supplements</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4><i class="fas fa-droplet"></i> Punarnava Kashayam</h4>
+                        <p><strong>Dose:</strong> 15ml BID empty stomach (if edema/albumin persists)</p>
+                        <p><strong>Rasa/Guna:</strong> Nephro-protective, anti-inflammatory</p>
+                        <p><strong>Modern Translation:</strong> Supports renal micro-vasculature</p>
+                        <p><strong>Monitor:</strong> Monthly serum creatinine</p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Safety & Contraindications</h4>
+                    <ul>
+                        <li><strong>Pregnancy:</strong> Skip coral calcium and Punarnava formulations</li>
+                        <li><strong>Kidney stones:</strong> Avoid Pravāl Piṣṭi, monitor with Punarnava Kashayam</li>
+                        <li><strong>Heavy metals:</strong> Ensure GMP certification and third-party testing</li>
+                        <li><strong>Drug interactions:</strong> Maintain proper spacing from allopathic medications</li>
+                        <li><strong>Liver function:</strong> Monitor if using multiple herbal formulations</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #3498db;">
+                    <h4><i class="fas fa-flask"></i> Monitoring Protocol</h4>
+                    <ul>
+                        <li><strong>Week 2:</strong> Assess GI tolerance of all formulations</li>
+                        <li><strong>Week 4:</strong> Check ferritin levels (adjust Lohāsava if needed)</li>
+                        <li><strong>Week 6:</strong> Retest Hb/Ferritin & serum calcium</li>
+                        <li><strong>Week 8:</strong> Evaluate urinalysis if using Punarnava Kashayam</li>
+                        <li><strong>Week 12:</strong> Complete panel + liver function tests</li>
+                    </ul>
+                </div>
+
+                <div class="causes-effects">
+                    <div class="causes">
+                        <h4><i class="fas fa-yin-yang"></i> Dosha-Specific Benefits</h4>
+                        <ul>
+                            <li><strong>Vata pacification:</strong> Ashwagandha calms nervous system</li>
+                            <li><strong>Pitta cooling:</strong> Pravāl Piṣṭi reduces inflammation</li>
+                            <li><strong>Kapha reduction:</strong> Punarnava reduces water retention</li>
+                            <li><strong>Agni enhancement:</strong> Lohāsava improves digestion</li>
+                        </ul>
+                    </div>
+                    <div class="effects">
+                        <h4><i class="fas fa-chart-line"></i> Expected Timeline</h4>
+                        <ul>
+                            <li><strong>Week 1-2:</strong> Improved digestion and energy</li>
+                            <li><strong>Week 3-4:</strong> Better sleep quality</li>
+                            <li><strong>Week 5-6:</strong> Enhanced iron absorption</li>
+                            <li><strong>Week 7-12:</strong> Sustained vitality and balance</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #9b59b6;">
+                    <h4><i class="fas fa-mortar-pestle"></i> Preparation Guidelines</h4>
+                    <ul>
+                        <li><strong>Timing:</strong> Take with appropriate anupana (vehicle) as specified</li>
+                        <li><strong>Storage:</strong> Cool, dry place away from direct sunlight</li>
+                        <li><strong>Quality:</strong> Source from reputable Ayurvedic pharmacies only</li>
+                        <li><strong>Dosage:</strong> Start with lower doses to assess tolerance</li>
+                    </ul>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <h4><i class="fas fa-balance-scale"></i> Integration Philosophy</h4>
+                    <p><strong>Holistic approach:</strong> Ayurvedic formulations support the body's natural healing mechanisms while allopathic supplements provide rapid correction. Together, they create a comprehensive healing framework addressing both symptoms and root causes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (modal.style.display === 'block') {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            }
+        });
+
+        // Chart.js configuration
+        Chart.defaults.font.family = 'Segoe UI';
+        Chart.defaults.color = '#2c3e50';
+
+        // CBC Chart
+        const cbcCtx = document.getElementById('cbcChart').getContext('2d');
+        new Chart(cbcCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Hemoglobin', 'Hematocrit', 'MCV', 'MCH', 'RDW-CV', 'Platelets'],
+                datasets: [{
+                    label: 'Current Values',
+                    data: [10.8, 34.3, 78, 24, 17, 420],
+                    backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                    borderColor: 'rgba(231, 76, 60, 1)',
+                    borderWidth: 2
+                }, {
+                    label: 'Normal Range (Lower)',
+                    data: [12.0, 36, 80, 27, 11, 150],
+                    backgroundColor: 'rgba(46, 204, 113, 0.3)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 2
+                }, {
+                    label: 'Normal Range (Upper)',
+                    data: [15.0, 46, 100, 32, 15, 400],
+                    backgroundColor: 'rgba(46, 204, 113, 0.3)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Complete Blood Count Analysis',
+                        font: { size: 16, weight: 'bold' }
+                    },
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Iron Metabolism Chart
+        const ironCtx = document.getElementById('ironChart').getContext('2d');
+        new Chart(ironCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Serum Iron', 'TIBC', 'Transferrin Sat', 'Ferritin'],
+                datasets: [{
+                    label: 'Current Levels (%)',
+                    data: [20, 84, 20, 4], // Percentage of normal range
+                    backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                    borderColor: 'rgba(231, 76, 60, 1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: 'rgba(231, 76, 60, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }, {
+                    label: 'Normal Range',
+                    data: [100, 100, 100, 100],
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(46, 204, 113, 1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Iron Metabolism Status',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: true
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 120,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // Treatment Progress Chart
+        const progressCtx = document.getElementById('progressChart').getContext('2d');
+        new Chart(progressCtx, {
+            type: 'line',
+            data: {
+                labels: ['Week 0', 'Week 2', 'Week 4', 'Week 6', 'Week 8', 'Week 10', 'Week 12'],
+                datasets: [{
+                    label: 'Hemoglobin (g/dL)',
+                    data: [10.8, 11.2, 11.8, 12.3, 12.7, 13.0, 13.2],
+                    borderColor: 'rgba(231, 76, 60, 1)',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Ferritin (ng/mL)',
+                    data: [6.7, 15, 28, 42, 55, 68, 80],
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Calcium (mg/dL)',
+                    data: [8.48, 8.7, 9.0, 9.2, 9.3, 9.4, 9.5],
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Projected Treatment Response',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Vitamin Status Chart
+        const vitaminCtx = document.getElementById('vitaminChart').getContext('2d');
+        new Chart(vitaminCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['B-12 (High)', 'B-1 (Border-Low)', 'Vitamin D (Pending)', 'Iron (Low)', 'Calcium (Low)'],
+                datasets: [{
+                    data: [852, 0.44, 0, 34.4, 8.48],
+                    backgroundColor: [
+                        '#f39c12',
+                        '#e74c3c',
+                        '#95a5a6',
+                        '#e74c3c',
+                        '#e74c3c'
+                    ],
+                    borderWidth: 3,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Vitamin & Mineral Status Overview',
+                        font: { size: 16, weight: 'bold' }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Recovery Timeline Chart
+        const recoveryCtx = document.getElementById('recoveryChart').getContext('2d');
+        new Chart(recoveryCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jun 2025', 'Jul 2025', 'Aug 2025', 'Sep 2025', 'Oct 2025'],
+                datasets: [{
+                    label: 'Recovery Progress (%)',
+                    data: [0, 25, 60, 90, 100],
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                    borderWidth: 4,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 8,
+                    pointHoverRadius: 12
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Expected Recovery Timeline',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Animate progress bars on load
+        window.addEventListener('load', function() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.getAttribute('data-width') || '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>
